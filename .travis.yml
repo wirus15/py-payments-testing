@@ -4,6 +4,8 @@ python:
 
 env:
   - DOCKER_TAG="-t py-payments-testing" BROWSERSTACK_ARGS="--env AUTOMATION_REMOTE=true --env BROWSERSTACK_ACCESS_KEY=$BROWSERSTACK_ACCESS_KEY"
+  - DOCKER_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+  - DOCKER_BRANCH=${DOCKER_BRANCH//[\@\/]/-}
 
 addons:
   browserstack:
@@ -20,11 +22,17 @@ addons:
 services:
   - docker
 
-before_install:
-- docker build ${DOCKER_TAG} .
+before_script:
+  - docker pull "securetrading1/py-payments-testing"
 
 jobs:
   include:
+    - stage: 'Build'
+      name: Docker build
+      script:
+        - docker build ${DOCKER_TAG} .
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push "securetrading1/py-payments-testing"
     - stage: 'Behavioural tests'
       name: 'Firefox 68.0'
       script:

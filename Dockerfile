@@ -1,3 +1,13 @@
+ARG CODE_VERSION=develop
+ARG CODE_REPO=js-payments
+FROM securetrading1/${CODE_REPO}:${CODE_VERSION}
+ARG CODE_REPO
+COPY . /app/py-payments-testing
+WORKDIR /app/py-payments-testing
+RUN cp -r /app/${CODE_REPO}/dist/* /app/py-payments-testing/__files
+EXPOSE 8443
+#ENTRYPOINT ["make", "run_wiremock"]
+
 FROM python:latest
 
 # Get up to date
